@@ -1,0 +1,71 @@
+{
+    "head0": {
+        "type": "header",
+        "description": "Settings for ldappwd@schorschii"
+    },
+
+    "head1": {
+        "type": "header",
+        "description": "General"
+    },
+    "server-address": {
+        "type": "entry",
+        "default": "",
+        "description": "LDAP Server Address",
+        "indent": true,
+        "tooltip": "IP addresse, DNS name or LDAP URI (multiple: whitespace-separated)"
+    },
+    "server-username": {
+        "type": "entry",
+        "default": "",
+        "description": "LDAP Bind User",
+        "indent": true,
+        "tooltip": "User name to authenticate on the LDAP server in format user@domain.tld"
+    },
+    "server-base-path": {
+        "type": "entry",
+        "default": "",
+        "description": "LDAP Base Path",
+        "indent": true,
+        "tooltip": "LDAP Base Path (e.g. dc=example,dc=com)"
+    },
+    "server-search-path": {
+        "type": "entry",
+        "default": "",
+        "description": "LDAP Password Expiry User Search Path",
+        "indent": true,
+        "tooltip": "LDAP Path of the User to Check (e.g. ou=persons,dc=example,dc=com)"
+    },
+    "server-query-user": {
+        "type": "entry",
+        "default": "",
+        "description": "LDAP Password Expiry User's Common Name (CN)",
+        "indent": true,
+        "tooltip": "Common Name of the User to Check (e.g. Hans Wurst)"
+    },
+
+    "head2": {
+        "type": "header",
+        "description": "Visual"
+    },
+    "showpercent": {
+        "type" : "checkbox",
+        "description": "Notification when password expires soon",
+        "tooltip": "Show a desktop notification.",
+        "default": true
+    },
+    "hide-decorations": {
+        "type": "checkbox",
+        "description": "Hide decorations",
+        "default": false
+    },
+
+    "last-pwdMaxAge": {
+        "type": "generic",
+        "default": 0
+    },
+    "last-pwdLastSet": {
+        "type": "generic",
+        "default": 0
+    }
+}

@@ -1,0 +1,23 @@
+.text {
+	color: white;
+	font-family: "DejaVu Sans", Sans-serif;
+	font-weight: normal;
+	font-size: 14px;
+	text-align: center;
+	/* text-shadow: 0px 0px 5px rgba(0,0,0,0.85); */
+}
+.button {
+	margin-top: 3px;
+	padding: 5px;
+	border-width: 1px;
+	border-color: #292929;
+	border-radius: 4px;
+	background-color: #454545;
+	color: white;
+}
+.button:hover {
+	background-color: #525252;
+}
+.button:active {
+	background-color: #92b372;
+}
