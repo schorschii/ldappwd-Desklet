@@ -3,10 +3,12 @@ This desklet shows when your LDAP domain password expires. You can change it dir
 
 This desklet is currenty in BETA phase and therefore not yet in the official cinnamon spices repo.
 
+![Screenshot](https://raw.githubusercontent.com/schorschii/ldappwd-desklet/master/ldappwd%40schorschii/img/screenshot.svg)
+
 ## Installation
 1. Copy `ldappwd@schorschii` dir into `~/.local/share/cinnamon/desklets`
 
-2. Please install the required packages
+2. Install the required packages
 ```
 apt install ldap-utils python3-pip zenity
 pip3 install ldap3
