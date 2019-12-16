@@ -115,8 +115,7 @@ MyDesklet.prototype = {
 				"-x", "-D", this.serverUsername,
 				"-w", password,
 				"-b", this.serverBasePath,
-				"CN=Builtin",
-				"maxPwdAge"
+				"-s", "base", "maxPwdAge"
 			],
 			flags: Gio.SubprocessFlags.STDOUT_PIPE | Gio.SubprocessFlags.STDERR_PIPE,
 		});
@@ -139,7 +138,6 @@ MyDesklet.prototype = {
 	},
 
 	refreshDesklet: function() {
-		global.log("update");
 		if(this.pwdMaxAge == 0 && this.pwdLastSet == 0) {
 			if(this.serverAddress == "" || this.serverUsername == ""
 			|| this.serverBasePath == "" || this.serverSearchPath == "" || this.serverQueryUser == "") {
@@ -301,13 +299,13 @@ MyDesklet.prototype = {
 					flags: Gio.SubprocessFlags.STDOUT_PIPE | Gio.SubprocessFlags.STDERR_PIPE,
 				});
 				subprocess.init(null);
-				let [, out] = subprocess.communicate_utf8(null, null); // get full output from stdout
+				let [, out, err] = subprocess.communicate_utf8(null, null); // get full output from stdout
 				if(out.includes("'description': 'success'")) {
 					let subprocess = new Gio.Subprocess({
 						argv: [
-							"/usr/bin/zenity", "--info",
+							"/usr/bin/zenity", "--info", "--width=400",
 							"--title", "LDAP Password Changed",
-							"--text", "New passwords set successfully."
+							"--text", "New password set successfully."
 						],
 						flags: Gio.SubprocessFlags.STDOUT_PIPE,
 					});
@@ -315,9 +313,11 @@ MyDesklet.prototype = {
 				} else {
 					let subprocess = new Gio.Subprocess({
 						argv: [
-							"/usr/bin/zenity", "--error",
+							"/usr/bin/zenity", "--error", "--width=400",
 							"--title", "LDAP Password Change Error",
-							"--text", out
+							"--text", "Please check if old password is correct, new password conforms to password policy, minimum password age is not violated, and if your account is locked."
+								+ "\n" + "Error Details: " + out.toString().replace(/[^\w\s]/gi, '')
+								+ "\n" + err.toString().replace(/[^\w\s]/gi, '')
 						],
 						flags: Gio.SubprocessFlags.STDOUT_PIPE,
 					});
@@ -328,7 +328,7 @@ MyDesklet.prototype = {
 			} else {
 				let subprocess = new Gio.Subprocess({
 					argv: [
-						"/usr/bin/zenity", "--warning",
+						"/usr/bin/zenity", "--warning", "--width=400",
 						"--title", "New LDAP Password",
 						"--text", "New passwords not matching."
 					],
