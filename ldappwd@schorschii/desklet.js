@@ -89,6 +89,7 @@ MyDesklet.prototype = {
 		let subprocess2 = new Gio.Subprocess({
 			argv: [
 				"/usr/bin/ldapsearch", "-LLL",
+				"-o", "nettimeout=2",
 				"-h", this.serverAddress,
 				"-x", "-D", this.serverUsername,
 				"-w", password,
@@ -99,42 +100,50 @@ MyDesklet.prototype = {
 			flags: Gio.SubprocessFlags.STDOUT_PIPE | Gio.SubprocessFlags.STDERR_PIPE,
 		});
 		subprocess2.init(null);
-		let [, out2] = subprocess2.communicate_utf8(null, null); // get full output from stdout
+		let [, out2, err2] = subprocess2.communicate_utf8(null, null); // get full output from stdout
 		let lines2 = out2.split(/\r?\n/);
 		for(var i=0; i<lines2.length; i++) {
 			if(lines2[i].startsWith("pwdLastSet: ")) {
 				this.pwdLastSet = lines2[i].split(" ")[1];
 			}
 		};
+		if(this.pwdLastSet == 0) {
+			this.showMessageBox("error", "Cannot query pwdLastSet!", this.escapeString(err2.toString()));
+		}
 
-		// get password max age time
-		let subprocess3 = new Gio.Subprocess({
-			argv: [
-				"/usr/bin/ldapsearch", "-LLL",
-				"-h", this.serverAddress,
-				"-x", "-D", this.serverUsername,
-				"-w", password,
-				"-b", this.serverBasePath,
-				"-s", "base", "maxPwdAge"
-			],
-			flags: Gio.SubprocessFlags.STDOUT_PIPE | Gio.SubprocessFlags.STDERR_PIPE,
-		});
-		subprocess3.init(null);
-		let [, out3] = subprocess3.communicate_utf8(null, null); // get full output from stdout
-		let lines3 = out3.split(/\r?\n/);
-		for(var i=0; i<lines3.length; i++) {
-			if(lines3[i].startsWith("maxPwdAge: ")) {
-				this.pwdMaxAge = lines3[i].split(" ")[1];
+		if(this.pwdLastSet > 0) {
+			// get password max age time
+			let subprocess3 = new Gio.Subprocess({
+				argv: [
+					"/usr/bin/ldapsearch", "-LLL",
+					"-o", "nettimeout=2",
+					"-h", this.serverAddress,
+					"-x", "-D", this.serverUsername,
+					"-w", password,
+					"-b", this.serverBasePath,
+					"-s", "base", "maxPwdAge"
+				],
+				flags: Gio.SubprocessFlags.STDOUT_PIPE | Gio.SubprocessFlags.STDERR_PIPE,
+			});
+			subprocess3.init(null);
+			let [, out3, err3] = subprocess3.communicate_utf8(null, null); // get full output from stdout
+			let lines3 = out3.split(/\r?\n/);
+			for(var i=0; i<lines3.length; i++) {
+				if(lines3[i].startsWith("maxPwdAge: ")) {
+					this.pwdMaxAge = lines3[i].split(" ")[1];
+				}
+			};
+			if(this.pwdLastSet == 0) {
+				this.showMessageBox("error", "Cannot query maxPwdAge!", this.escapeString(err3.toString()));
 			}
-		};
+		}
 
 		// save result
 		this.lastPwdMaxAge = this.pwdMaxAge;
 		this.lastPwdLastSet = this.pwdLastSet;
 
+		// refresh view
 		this.refreshDesklet();
-
-		//Main.notifyError(result_devfile_capacity, result_devfile_status); // debug
 	},
 
 	refreshDesklet: function() {
@@ -189,11 +198,9 @@ MyDesklet.prototype = {
 		});
 		this.image.set_position(this.deskletWidth/2 - 24,0);
 		groupIcon.add_actor(this.image);
-		new Tooltips.Tooltip(groupIcon, "Info");
 
 		// label for percent string
 		let labelText = new St.Label({style_class:"text"});
-		labelText.set_position(0, 55);
 		labelText.style = "width: " + this.deskletWidth.toString() + "px;";
 		labelText.set_text(this.info);
 
@@ -225,16 +232,12 @@ MyDesklet.prototype = {
 		buttonTable.pack(buttonRefresh, 0, 0);
 		buttonTable.pack(buttonSetPassword, 1, 0);
 
-		let layoutTable = new Clutter.TableLayout();
-		this.container = new Clutter.Actor();
-		this.container.set_layout_manager(layoutTable);
-		layoutTable.set_row_spacing(5);
-		layoutTable.pack(groupIcon, 0, 0);
-		layoutTable.pack(labelText, 0, 1);
-		layoutTable.pack(buttonTableActor, 0, 2);
-
 		// set root element
+		this.container = new St.BoxLayout({ style_class: "container", vertical: true });
 		this.setContent(this.container);
+		this.container.add_actor(groupIcon);
+		this.container.add_actor(labelText);
+		this.container.add_actor(buttonTableActor);
 
 		// refresh again
 		if(typeof this.timeout !== 'undefined') {
@@ -301,47 +304,41 @@ MyDesklet.prototype = {
 				subprocess.init(null);
 				let [, out, err] = subprocess.communicate_utf8(null, null); // get full output from stdout
 				if(out.includes("'description': 'success'")) {
-					let subprocess = new Gio.Subprocess({
-						argv: [
-							"/usr/bin/zenity", "--info", "--width=400",
-							"--title", "LDAP Password Changed",
-							"--text", "New password set successfully."
-						],
-						flags: Gio.SubprocessFlags.STDOUT_PIPE,
-					});
-					subprocess.init(null);
+					sourceObject.desklet.showMessageBox("info", "LDAP Password Changed", "New password set successfully.");
+					// update expiry date
+					sourceObject.desklet.update(newPassword);
 				} else {
-					let subprocess = new Gio.Subprocess({
-						argv: [
-							"/usr/bin/zenity", "--error", "--width=400",
-							"--title", "LDAP Password Change Error",
-							"--text", "Please check if old password is correct, new password conforms to password policy, minimum password age is not violated, and if your account is locked."
-								+ "\n" + "Error Details: " + out.toString().replace(/[^\w\s]/gi, '')
-								+ "\n" + err.toString().replace(/[^\w\s]/gi, '')
-						],
-						flags: Gio.SubprocessFlags.STDOUT_PIPE,
-					});
-					subprocess.init(null);
+					sourceObject.desklet.showMessageBox("error", "LDAP Password Change Error",
+						"Please check if old password is correct, new password conforms to password policy, minimum password age is not violated, and if your account is locked."
+						+ "\n" + "Error Details: " + sourceObject.desklet.escapeString(out.toString())
+						+ "\n" + sourceObject.desklet.escapeString(err.toString())
+					);
 				}
-				// update expiry date
-				sourceObject.desklet.update(newPassword);
 			} else {
-				let subprocess = new Gio.Subprocess({
-					argv: [
-						"/usr/bin/zenity", "--warning", "--width=400",
-						"--title", "New LDAP Password",
-						"--text", "New passwords not matching."
-					],
-					flags: Gio.SubprocessFlags.STDOUT_PIPE,
-				});
-				subprocess.init(null);
+				sourceObject.desklet.showMessageBox("warning", "New LDAP Password", "New passwords not matching.");
 			}
 		}
 	},
 
+	showMessageBox: function(icon, title, text) {
+		let subprocess = new Gio.Subprocess({
+			argv: [
+				"/usr/bin/zenity", "--"+icon, "--width=400",
+				"--title", title,
+				"--text", text
+			],
+			flags: Gio.SubprocessFlags.STDOUT_PIPE,
+		});
+		subprocess.init(null);
+	},
+
+	escapeString: function(input) {
+		return input.replace(/[^\w\s/():,.\n]/gi, '');
+	},
+
 	refreshDecoration: function() {
 		// desklet label (header)
-		this.setHeader(_("Password Expiry"));
+		this.setHeader(_("Password Expiry") + " " + this.serverQueryUser);
 
 		// prevent decorations?
 		this.metadata["prevent-decorations"] = this.hide_decorations;
