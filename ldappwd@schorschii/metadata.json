@@ -1,8 +1,7 @@
 {
     "uuid": "ldappwd@schorschii",
-    "max-instances": "1",
+    "max-instances": "10",
     "description": "See when your domain password expires and change it.",
-    "version": "1.0",
-    "name": "LDAP Password Expiry Tool",
-    "last-edited": 1574195821
+    "version": "1.1",
+    "name": "LDAP Password Expiry Tool"
 }

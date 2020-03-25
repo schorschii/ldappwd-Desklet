@@ -13,45 +13,31 @@
         "default": "",
         "description": "LDAP Server Address",
         "indent": true,
-        "tooltip": "IP addresse, DNS name or LDAP URI (multiple: whitespace-separated)"
+        "tooltip": "IP addresse or DNS name"
     },
     "server-username": {
         "type": "entry",
         "default": "",
-        "description": "LDAP Bind User",
+        "description": "Username",
         "indent": true,
-        "tooltip": "User name to authenticate on the LDAP server in format user@domain.tld"
+        "tooltip": "User name to authenticate on the LDAP server (without domain)"
     },
-    "server-base-path": {
+    "server-domain": {
         "type": "entry",
         "default": "",
-        "description": "LDAP Base Path",
+        "description": "Domain",
         "indent": true,
-        "tooltip": "LDAP Base Path (e.g. dc=example,dc=com)"
-    },
-    "server-search-path": {
-        "type": "entry",
-        "default": "",
-        "description": "LDAP Password Expiry User Search Path",
-        "indent": true,
-        "tooltip": "LDAP Path of the User to Check (e.g. ou=persons,dc=example,dc=com)"
-    },
-    "server-query-user": {
-        "type": "entry",
-        "default": "",
-        "description": "LDAP Password Expiry User's Common Name (CN)",
-        "indent": true,
-        "tooltip": "Common Name of the User to Check (e.g. Hans Wurst)"
+        "tooltip": "Domain name (e.g. example.com)"
     },
 
     "head2": {
         "type": "header",
         "description": "Visual"
     },
-    "showpercent": {
+    "show-notifications": {
         "type" : "checkbox",
         "description": "Notification when password expires soon",
-        "tooltip": "Show a desktop notification.",
+        "tooltip": "Show desktop notification when password expires soon.",
         "default": true
     },
     "hide-decorations": {
@@ -60,11 +46,7 @@
         "default": false
     },
 
-    "last-pwdMaxAge": {
-        "type": "generic",
-        "default": 0
-    },
-    "last-pwdLastSet": {
+    "last-pwdExpiry": {
         "type": "generic",
         "default": 0
     }

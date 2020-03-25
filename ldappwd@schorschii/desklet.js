@@ -12,8 +12,16 @@ const Cogl = imports.gi.Cogl;
 const Gio = imports.gi.Gio;
 const Tooltips = imports.ui.tooltips;
 
-const DESKLET_ROOT = imports.ui.deskletManager.deskletMeta["ldappwd@schorschii"].path;
+const UUID = "ldappwd@schorschii";
+const DESKLET_ROOT = imports.ui.deskletManager.deskletMeta[UUID].path;
 
+
+// translation support
+const Gettext = imports.gettext;
+Gettext.bindtextdomain(UUID, GLib.get_home_dir() + "/.local/share/locale");
+function _(str) {
+	return Gettext.dgettext(UUID, str);
+}
 
 function MyDesklet(metadata, desklet_id) {
 	this._init(metadata, desklet_id);
@@ -23,25 +31,13 @@ function main(metadata, desklet_id) {
 	return new MyDesklet(metadata, desklet_id);
 }
 
-function getImageAtScale(imageFileName, width, height, width2 = 0, height2 = 0) {
-	if (width2 == 0 || height2 == 0) {
-		width2 = width;
-		height2 = height;
+function buildBasePathByDomain(domain) {
+	var basePathParts = [];
+	var a = domain.split(".");
+	for(var i = 0; i < a.length; i++) {
+		basePathParts.push("dc="+a[i]);
 	}
-
-	let pixBuf = GdkPixbuf.Pixbuf.new_from_file_at_size(imageFileName, width, height);
-	let image = new Clutter.Image();
-	image.set_data(
-		pixBuf.get_pixels(),
-		pixBuf.get_has_alpha() ? Cogl.PixelFormat.RGBA_8888 : Cogl.PixelFormat.RGBA_888,
-		width, height,
-		pixBuf.get_rowstride()
-	);
-
-	let actor = new Clutter.Actor({width: width2, height: height2});
-	actor.set_content(image);
-
-	return actor;
+	return basePathParts.join(",");
 }
 
 
@@ -56,11 +52,9 @@ MyDesklet.prototype = {
 		this.settings.bindProperty(Settings.BindingDirection.IN, "hide-decorations", "hide_decorations", this.on_setting_changed);
 		this.settings.bindProperty(Settings.BindingDirection.IN, "server-address", "serverAddress", this.on_setting_changed);
 		this.settings.bindProperty(Settings.BindingDirection.IN, "server-username", "serverUsername", this.on_setting_changed);
-		this.settings.bindProperty(Settings.BindingDirection.IN, "server-base-path", "serverBasePath", this.on_setting_changed);
-		this.settings.bindProperty(Settings.BindingDirection.IN, "server-search-path", "serverSearchPath", this.on_setting_changed);
-		this.settings.bindProperty(Settings.BindingDirection.IN, "server-query-user", "serverQueryUser", this.on_setting_changed);
-		this.settings.bindProperty(Settings.BindingDirection.BIDIRECTIONAL, "last-pwdLastSet", "lastPwdLastSet", this.on_setting_changed);
-		this.settings.bindProperty(Settings.BindingDirection.BIDIRECTIONAL, "last-pwdMaxAge", "lastPwdMaxAge", this.on_setting_changed);
+		this.settings.bindProperty(Settings.BindingDirection.IN, "server-domain", "serverDomain", this.on_setting_changed);
+		this.settings.bindProperty(Settings.BindingDirection.IN, "show-notifications", "showNotifications", this.on_setting_changed);
+		this.settings.bindProperty(Settings.BindingDirection.BIDIRECTIONAL, "last-pwdExpiry", "lastPwdExpiry", this.on_setting_changed);
 
 		// initialize desklet gui
 		this.setupUI();
@@ -71,31 +65,27 @@ MyDesklet.prototype = {
 		this.deskletWidth = 120;
 		this.info = "Please Refresh";
 		this.symbol = "error";
-		this.pwdMaxAge = this.lastPwdMaxAge;
-		this.pwdLastSet = this.lastPwdLastSet;
+		this.pwdExpiry = this.lastPwdExpiry;
 
 		// set decoration settings
 		this.refreshDecoration();
 
 		// start update cycle
-		this.refreshDesklet();
+		this.refreshDesklet(true);
 	},
 
 	update: function(password) {
-		this.pwdMaxAge = 0;
-		this.pwdLastSet = 0;
+		this.pwdExpiry = 0;
 
 		// get password last changed time
 		let subprocess2 = new Gio.Subprocess({
 			argv: [
-				"/usr/bin/ldapsearch", "-LLL",
-				"-o", "nettimeout=2",
-				"-h", this.serverAddress,
-				"-x", "-D", this.serverUsername,
-				"-w", password,
-				"-b", this.serverSearchPath,
-				"CN="+this.serverQueryUser,
-				"pwdLastSet"
+				"/usr/bin/python3", DESKLET_ROOT+"/expiry.py",
+				this.serverAddress,
+				this.serverUsername+"@"+this.serverDomain,
+				password,
+				buildBasePathByDomain(this.serverDomain),
+				this.serverUsername
 			],
 			flags: Gio.SubprocessFlags.STDOUT_PIPE | Gio.SubprocessFlags.STDERR_PIPE,
 		});
@@ -103,53 +93,25 @@ MyDesklet.prototype = {
 		let [, out2, err2] = subprocess2.communicate_utf8(null, null); // get full output from stdout
 		let lines2 = out2.split(/\r?\n/);
 		for(var i=0; i<lines2.length; i++) {
-			if(lines2[i].startsWith("pwdLastSet: ")) {
-				this.pwdLastSet = lines2[i].split(" ")[1];
+			var parsed = parseInt(lines2[i]);
+			if(lines2[i].trim() != "" && !isNaN(parsed)) {
+				this.pwdExpiry = parsed;
 			}
 		};
-		if(this.pwdLastSet == 0) {
-			this.showMessageBox("error", "Cannot query pwdLastSet!", this.escapeString(err2.toString()));
+		if(this.pwdExpiry == 0) {
+			this.showMessageBox("error", _("Cannot query pwdExpiry!"), this.escapeString(err2.toString()));
 		}
 
-		if(this.pwdLastSet > 0) {
-			// get password max age time
-			let subprocess3 = new Gio.Subprocess({
-				argv: [
-					"/usr/bin/ldapsearch", "-LLL",
-					"-o", "nettimeout=2",
-					"-h", this.serverAddress,
-					"-x", "-D", this.serverUsername,
-					"-w", password,
-					"-b", this.serverBasePath,
-					"-s", "base", "maxPwdAge"
-				],
-				flags: Gio.SubprocessFlags.STDOUT_PIPE | Gio.SubprocessFlags.STDERR_PIPE,
-			});
-			subprocess3.init(null);
-			let [, out3, err3] = subprocess3.communicate_utf8(null, null); // get full output from stdout
-			let lines3 = out3.split(/\r?\n/);
-			for(var i=0; i<lines3.length; i++) {
-				if(lines3[i].startsWith("maxPwdAge: ")) {
-					this.pwdMaxAge = lines3[i].split(" ")[1];
-				}
-			};
-			if(this.pwdLastSet == 0) {
-				this.showMessageBox("error", "Cannot query maxPwdAge!", this.escapeString(err3.toString()));
-			}
-		}
-
-		// save result
-		this.lastPwdMaxAge = this.pwdMaxAge;
-		this.lastPwdLastSet = this.pwdLastSet;
+		// save result in settings
+		this.lastPwdExpiry = this.pwdExpiry;
 
 		// refresh view
 		this.refreshDesklet();
 	},
 
-	refreshDesklet: function() {
-		if(this.pwdMaxAge == 0 && this.pwdLastSet == 0) {
-			if(this.serverAddress == "" || this.serverUsername == ""
-			|| this.serverBasePath == "" || this.serverSearchPath == "" || this.serverQueryUser == "") {
+	refreshDesklet: function(showNotifications = false) {
+		if(this.pwdExpiry == 0) {
+			if(this.serverAddress == "" || this.serverUsername == "" || this.serverDomain == "") {
 				this.info = "Please Edit\nSettings";
 				this.symbol = "error";
 			} else {
@@ -157,36 +119,25 @@ MyDesklet.prototype = {
 				this.symbol = "error";
 			}
 		} else {
-			// get current unix timestamp
-			let subprocess = new Gio.Subprocess({
-				argv: ["/bin/date", "+%s"],
-				flags: Gio.SubprocessFlags.STDOUT_PIPE,
-			});
-			subprocess.init(null);
-			let [, out] = subprocess.communicate_utf8(null, null); // get full output from stdout
-			let currentUnixTime = out.split(/\r?\n/)[0]; // get first line
-
-			// convert time format
-			// divide by 10 000 000 to get seconds
-			// 1.1.1600 -> 1.1.1970 = 11644473600 difference in seconds
-			let pwdLastSetUnix = Math.round(Math.abs(parseInt(this.pwdLastSet) / 10000000)) - 11644473600;
-			let pwdMaxAgeUnix = Math.round(Math.abs(parseInt(this.pwdMaxAge) / 10000000));
-			let pwdExpiryUnix = pwdLastSetUnix + pwdMaxAgeUnix;
-			let pwdExpiryInSeconds = pwdExpiryUnix - currentUnixTime;
+			// recalc expiration days
+			let pwdExpiryInSeconds = this.pwdExpiry - Math.round(Date.now()/1000);
 			let pwdExpiryInDays = Math.round(pwdExpiryInSeconds/60/60/24);
 
 			// check result
 			if(pwdExpiryInDays > 0) {
-				this.info = "" + pwdExpiryInDays + " days";
+				this.info = this.serverUsername + "\n" + pwdExpiryInDays + " " + _("days");
 				if(pwdExpiryInDays > 14) {
 					this.symbol = "green";
 				} else if(pwdExpiryInDays > 5) {
 					this.symbol = "yellow";
 				} else {
 					this.symbol = "red";
+					if(showNotifications) {
+						Main.notifyError(this.serverUsername, _("Your password expires in %s days").replace(/%s/, pwdExpiryInDays));
+					}
 				}
 			} else {
-				this.info = "Password does\nnot expire";
+				this.info = _("Password does\nnot expire");
 			}
 		}
 
@@ -211,7 +162,7 @@ MyDesklet.prototype = {
 			icon_size: 24, icon_type: St.IconType.SYMBOLIC
 		});
 		buttonRefresh.add_actor(this.image);
-		new Tooltips.Tooltip(buttonRefresh, "Refresh Expiry Date");
+		new Tooltips.Tooltip(buttonRefresh, _("Refresh Expiry Date"));
 		buttonRefresh.connect("clicked", Lang.bind(this, this.refreshPasswordExpiry));
 
 		// set password button
@@ -221,14 +172,14 @@ MyDesklet.prototype = {
 			icon_size: 24, icon_type: St.IconType.SYMBOLIC
 		});
 		buttonSetPassword.add_actor(this.image);
-		new Tooltips.Tooltip(buttonSetPassword, "Set New Password");
+		new Tooltips.Tooltip(buttonSetPassword, _("Set New Password"));
 		buttonSetPassword.connect("clicked", Lang.bind(this, this.setPassword));
 
 		// create table layout
 		let buttonTable = new Clutter.TableLayout();
 		let buttonTableActor = new Clutter.Actor();
 		buttonTableActor.set_layout_manager(buttonTable);
-		buttonTable.set_column_spacing(5);
+		buttonTable.set_column_spacing(4);
 		buttonTable.pack(buttonRefresh, 0, 0);
 		buttonTable.pack(buttonSetPassword, 1, 0);
 
@@ -243,12 +194,12 @@ MyDesklet.prototype = {
 		if(typeof this.timeout !== 'undefined') {
 			Mainloop.source_remove(this.timeout);
 		}
-		this.timeout = Mainloop.timeout_add_seconds(50, Lang.bind(this, this.refreshDesklet));
+		this.timeout = Mainloop.timeout_add_seconds(600, Lang.bind(this, this.refreshDesklet));
 	},
 
 	refreshPasswordExpiry: function() {
 		let subprocess = new Gio.Subprocess({
-			argv: ["/usr/bin/zenity", "--password", "--title", "LDAP Password"],
+			argv: ["/usr/bin/zenity", "--password", "--title", _("LDAP Password")],
 			flags: Gio.SubprocessFlags.STDOUT_PIPE,
 		});
 		subprocess.init(null);
@@ -267,11 +218,11 @@ MyDesklet.prototype = {
 		let subprocess = new Gio.Subprocess({
 			argv: [
 				"/usr/bin/zenity", "--forms",
-				"--title", "New LDAP Password",
-				"--text", "Change Password",
-				"--add-password", "Old Password",
-				"--add-password", "New Password",
-				"--add-password", "Confirm Password"
+				"--title", _("New Password"),
+				"--text", _("Change Password"),
+				"--add-password", _("Old Password"),
+				"--add-password", _("New Password"),
+				"--add-password", _("Confirm Password")
 			],
 			flags: Gio.SubprocessFlags.STDOUT_PIPE,
 		});
@@ -291,11 +242,12 @@ MyDesklet.prototype = {
 				// update password
 				let subprocess = new Gio.Subprocess({
 					argv: [
-						"/usr/bin/python3", DESKLET_ROOT+"/ldappasswd.py",
+						"/usr/bin/python3", DESKLET_ROOT+"/change.py",
 						sourceObject.desklet.serverAddress,
-						sourceObject.desklet.serverUsername,
+						sourceObject.desklet.serverUsername+"@"+sourceObject.desklet.serverDomain,
 						oldPassword,
-						"CN="+sourceObject.desklet.serverQueryUser+","+sourceObject.desklet.serverSearchPath,
+						buildBasePathByDomain(sourceObject.desklet.serverDomain),
+						sourceObject.desklet.serverUsername,
 						oldPassword,
 						newPassword
 					],
@@ -304,18 +256,18 @@ MyDesklet.prototype = {
 				subprocess.init(null);
 				let [, out, err] = subprocess.communicate_utf8(null, null); // get full output from stdout
 				if(out.includes("'description': 'success'")) {
-					sourceObject.desklet.showMessageBox("info", "LDAP Password Changed", "New password set successfully.");
+					sourceObject.desklet.showMessageBox("info", _("LDAP Password Changed"), _("New password set successfully."));
 					// update expiry date
 					sourceObject.desklet.update(newPassword);
 				} else {
-					sourceObject.desklet.showMessageBox("error", "LDAP Password Change Error",
-						"Please check if old password is correct, new password conforms to password policy, minimum password age is not violated, and if your account is locked."
+					sourceObject.desklet.showMessageBox("error", _("LDAP Password Change Error"),
+						_("Please check if old password is correct, new password conforms to password policy, minimum password age is not violated, and if your account is locked.")
 						+ "\n" + "Error Details: " + sourceObject.desklet.escapeString(out.toString())
 						+ "\n" + sourceObject.desklet.escapeString(err.toString())
 					);
 				}
 			} else {
-				sourceObject.desklet.showMessageBox("warning", "New LDAP Password", "New passwords not matching.");
+				sourceObject.desklet.showMessageBox("warning", _("New Password"), _("New passwords not matching."));
 			}
 		}
 	},
@@ -338,7 +290,7 @@ MyDesklet.prototype = {
 
 	refreshDecoration: function() {
 		// desklet label (header)
-		this.setHeader(_("Password Expiry") + " " + this.serverQueryUser);
+		this.setHeader(_("Password Expiry"));
 
 		// prevent decorations?
 		this.metadata["prevent-decorations"] = this.hide_decorations;

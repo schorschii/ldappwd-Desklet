@@ -1,0 +1,105 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-03-25 02:24+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
+
+msgid "Password Expiry"
+msgstr ""
+
+msgid "days"
+msgstr ""
+
+msgid "Cannot query pwdExpiry!"
+msgstr ""
+
+msgid "Your password expires in % days"
+msgstr ""
+
+msgid "Password does\nnot expire"
+msgstr ""
+
+msgid "Refresh Expiry Date"
+msgstr ""
+
+msgid "Set New Password"
+msgstr ""
+
+msgid "LDAP Password"
+msgstr ""
+
+msgid "New Password"
+msgstr ""
+
+msgid "Change Password"
+msgstr ""
+
+msgid "Old Password"
+msgstr ""
+
+msgid "Confirm Password"
+msgstr ""
+
+msgid "LDAP Password Changed"
+msgstr ""
+
+msgid "LDAP Password Change Error"
+msgstr ""
+
+msgid "New password set successfully."
+msgstr ""
+
+msgid "New passwords not matching."
+msgstr ""
+
+msgid "Please check if old password is correct, new password conforms to password policy, minimum password age is not violated, and if your account is locked."
+msgstr ""
+
+msgid "Settings for ldappwd@schorschii"
+msgstr ""
+
+msgid "General"
+msgstr ""
+
+msgid "LDAP Server Address"
+msgstr ""
+
+msgid "Username"
+msgstr ""
+
+msgid "Domain"
+msgstr ""
+
+msgid "IP addresse or DNS name"
+msgstr ""
+
+msgid "User name to authenticate on the LDAP server (without domain)"
+msgstr ""
+
+msgid "Domain name (e.g. example.com)"
+msgstr ""
+
+msgid "Visual"
+msgstr ""
+
+msgid "Notification when password expires soon"
+msgstr ""
+
+msgid "Show desktop notification when password expires soon."
+msgstr ""
+
+msgid "Hide decorations"
+msgstr ""

@@ -1,4 +1,7 @@
 .container {
+	background-color: #2F2F2F;
+	padding: 4px;
+	border-radius: 4px;
 }
 .text {
 	color: white;

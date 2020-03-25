@@ -7,24 +7,27 @@ This desklet is currenty in BETA phase and therefore not yet in the official cin
 
 ![Screenshot](https://raw.githubusercontent.com/schorschii/ldappwd-desklet/master/ldappwd%40schorschii/img/screenshot.png)
 
-## Installation
+## Manual Installation
 1. Copy `ldappwd@schorschii` dir into `~/.local/share/cinnamon/desklets`
-
 2. Install the required packages
 ```
-apt install ldap-utils python3-pip zenity
+apt install python3-pip zenity
 pip3 install ldap3
 ```
+3. (Optional) Install translation files
+```
+cd ~/.local/share/cinnamon/desklets/ldappwd@schorschii
+cinnamon-json-makepot --install
+```
 
-3. Add the desklet to your desktop and go to settings.  
+## Desklet Setup
+1. Open the desklet manager and add the desklet to your desktop. Right click on it and open settings.  
 **Example Values**  
 LDAP Server Address: `192.168.56.101`  
-LDAP Bind User: `hwurst@example.com`  
-LDAP Base Path: `dc=example,dc=com`  
-LDAP Path of the User to Check: `ou=persons,dc=example,dc=com`  
-Common Name of the User to Check: `Hans Wurst` or `hwurst`
+Username: `johndoe`  
+Domain: `example.com`  
 
-4. Click the "Refresh" Button and enter the password for the LDAP bind user to authenticate against the LDAP server.  
-If everything was entered correct, the desklet should now display when the password of the given user expires.
+2. Click the "Refresh" Button on the desklet and enter the password for the LDAP bind user to authenticate against the LDAP server.  
+If everything was entered correct, the desklet now displays when the password of the given user expires.
 
-5. You can click on "Set New Password" to change your password directly.
+3. You can click the "Set New Password" button on the desklet to change your password directly.

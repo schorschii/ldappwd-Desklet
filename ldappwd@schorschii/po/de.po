@@ -1,0 +1,106 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-03-25 02:25+0200\n"
+"PO-Revision-Date: 2020-03-25 02:25+0200\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.6\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Password Expiry"
+msgstr "Passwortablauf"
+
+msgid "days"
+msgstr "Tage"
+
+msgid "Cannot query pwdExpiry!"
+msgstr "Kann pwdExpiry nicht abfragen!"
+
+msgid "Your password expires in % days"
+msgstr "Ihr Passwort läuft in %s Tagen ab"
+
+msgid "Password does\nnot expire"
+msgstr "Passwort läuft\nnicht ab"
+
+msgid "Refresh Expiry Date"
+msgstr "Ablaufdatum aktualisieren"
+
+msgid "Set New Password"
+msgstr "Passwort ändern"
+
+msgid "LDAP Password"
+msgstr "LDAP Passwort"
+
+msgid "New Password"
+msgstr "Neues Passwort"
+
+msgid "Change Password"
+msgstr "Passwort ändern"
+
+msgid "Old Password"
+msgstr "Altes Passwort"
+
+msgid "Confirm Password"
+msgstr "Passwort bestätigen"
+
+msgid "LDAP Password Changed"
+msgstr "LDAP-Passwort geändert"
+
+msgid "LDAP Password Change Error"
+msgstr "Fehler beim Ändern des LDAP-Passworts"
+
+msgid "New password set successfully."
+msgstr "Neues Passwort erfolgreich gesetzt."
+
+msgid "New passwords not matching."
+msgstr "Neue Passwörter stimmen nicht überein."
+
+msgid "Please check if old password is correct, new password conforms to password policy, minimum password age is not violated, and if your account is locked."
+msgstr "Bitte prüfen Sie ob Ihr altes Passwort korrekt ist, das neue Passwort mit der Kennwortrichtlinie konform ist, das minimale Kennwortalter nicht unterschritten wurde und ob Ihr Account gesperrt ist."
+
+msgid "Settings for ldappwd@schorschii"
+msgstr "Einstellungen für ldappwd@schorschii"
+
+msgid "General"
+msgstr "Allgemein"
+
+msgid "LDAP Server Address"
+msgstr "LDAP-Server-Adresse"
+
+msgid "Username"
+msgstr "Benutzername"
+
+msgid "Domain"
+msgstr "Domäne"
+
+msgid "IP addresse or DNS name"
+msgstr "IP-Adresse oder DNS-Name"
+
+msgid "User name to authenticate on the LDAP server (without domain)"
+msgstr "Benutzername zur Authentifizieurng am LDAP-Server (ohne Domäne)"
+
+msgid "Domain name (e.g. example.com)"
+msgstr "Domänenname (z.B. example.com)"
+
+msgid "Visual"
+msgstr "Visuelle Einstellungen"
+
+msgid "Notification when password expires soon"
+msgstr "Benachrichtigungen, wenn das Passwort bald abläuft"
+
+msgid "Show desktop notification when password expires soon."
+msgstr "Zeige Desktopbenachrichtigungen, wenn das Passwort bald abläuft."
+
+msgid "Hide decorations"
+msgstr "Dekorationen verstecken"
