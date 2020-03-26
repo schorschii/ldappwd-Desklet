@@ -32,7 +32,8 @@ if(len(conn.entries) > 1):
     print("Error: User query produced more than one result")
     exit(1)
 userDn = conn.entries[0].distinguishedName.value
+#print(userDn)
 
 # change password - microsoft style
-conn.extend.microsoft.modify_password(user=userDn, new_password=sys.argv[6], old_password=sys.argv[5])
+conn.extend.microsoft.modify_password(user=userDn, new_password=sys.argv[7], old_password=sys.argv[6])
 print(conn.result)
