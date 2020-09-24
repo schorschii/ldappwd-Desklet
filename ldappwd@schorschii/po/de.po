@@ -24,6 +24,12 @@ msgstr "Passwortablauf"
 msgid "days"
 msgstr "Tage"
 
+msgid "Please Edit\nSettings"
+msgstr "Bitte Einst.\nbearbeiten"
+
+msgid "Please Refresh"
+msgstr "Bitte aktualisieren"
+
 msgid "Cannot query pwdExpiry!"
 msgstr "Kann pwdExpiry nicht abfragen!"
 

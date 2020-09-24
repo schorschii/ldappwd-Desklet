@@ -23,6 +23,12 @@ msgstr ""
 msgid "days"
 msgstr ""
 
+msgid "Please Edit\nSettings"
+msgstr ""
+
+msgid "Please Refresh"
+msgstr ""
+
 msgid "Cannot query pwdExpiry!"
 msgstr ""
 

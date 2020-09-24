@@ -11,19 +11,21 @@ const GdkPixbuf = imports.gi.GdkPixbuf;
 const Cogl = imports.gi.Cogl;
 const Gio = imports.gi.Gio;
 const Tooltips = imports.ui.tooltips;
+const Gettext = imports.gettext;
 
 const UUID = "ldappwd@schorschii";
 const DESKLET_ROOT = imports.ui.deskletManager.deskletMeta[UUID].path;
 
-
 // translation support
-const Gettext = imports.gettext;
-Gettext.bindtextdomain(UUID, GLib.get_home_dir() + "/.local/share/locale");
 function _(str) {
 	return Gettext.dgettext(UUID, str);
 }
 
 function MyDesklet(metadata, desklet_id) {
+	// translation init: if installed in user context, switch to translations in user's home dir
+	if(!DESKLET_ROOT.startsWith("/usr/share/")) {
+		Gettext.bindtextdomain(UUID, GLib.get_home_dir() + "/.local/share/locale");
+	}
 	this._init(metadata, desklet_id);
 }
 
@@ -63,7 +65,7 @@ MyDesklet.prototype = {
 	setupUI: function() {
 		// defaults and initial values
 		this.deskletWidth = 120;
-		this.info = "Please Refresh";
+		this.info = _("Please Refresh");
 		this.symbol = "error";
 		this.pwdExpiry = this.lastPwdExpiry;
 
@@ -112,10 +114,10 @@ MyDesklet.prototype = {
 	refreshDesklet: function(showNotifications = false) {
 		if(this.pwdExpiry == 0) {
 			if(this.serverAddress == "" || this.serverUsername == "" || this.serverDomain == "") {
-				this.info = "Please Edit\nSettings";
+				this.info = _("Please Edit\nSettings");
 				this.symbol = "error";
 			} else {
-				this.info = "Please Refresh";
+				this.info = _("Please Refresh");
 				this.symbol = "error";
 			}
 		} else {
