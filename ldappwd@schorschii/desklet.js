@@ -1,14 +1,11 @@
 const Desklet = imports.ui.desklet;
 const St = imports.gi.St;
 const GLib = imports.gi.GLib;
-const Util = imports.misc.util;
 const Mainloop = imports.mainloop;
 const Lang = imports.lang;
 const Settings = imports.ui.settings;
 const Main = imports.ui.main;
 const Clutter = imports.gi.Clutter;
-const GdkPixbuf = imports.gi.GdkPixbuf;
-const Cogl = imports.gi.Cogl;
 const Gio = imports.gi.Gio;
 const Tooltips = imports.ui.tooltips;
 const Gettext = imports.gettext;
@@ -150,7 +147,6 @@ MyDesklet.prototype = {
 			icon_size: 48, icon_type: St.IconType.SYMBOLIC
 		});
 		this.image.set_position((this.deskletWidth*global.ui_scale)/2 - (24*global.ui_scale), 0);
-
 		groupIcon.add_actor(this.image);
 
 		// label for percent string
