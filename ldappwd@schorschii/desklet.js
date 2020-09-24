@@ -147,7 +147,8 @@ MyDesklet.prototype = {
 			gicon: new Gio.FileIcon({ file: Gio.file_new_for_path(DESKLET_ROOT + "/img/" + this.symbol + ".svg") }),
 			icon_size: 48, icon_type: St.IconType.SYMBOLIC
 		});
-		this.image.set_position(this.deskletWidth/2 - 24,0);
+		this.image.set_position((this.deskletWidth*global.ui_scale)/2 - (24*global.ui_scale), 0);
+
 		groupIcon.add_actor(this.image);
 
 		// label for percent string
