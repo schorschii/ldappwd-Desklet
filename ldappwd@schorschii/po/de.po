@@ -18,6 +18,12 @@ msgstr ""
 "X-Generator: Poedit 1.8.6\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+msgid "LDAP Password Expiry Tool"
+msgstr "LDAP-Passwortablauf-Tool"
+
+msgid "See when your domain password expires and change it."
+msgstr "Zeigt wann Ihr Domänen-Passwort abläuft und ermöglicht es zu ändern."
+
 msgid "Password Expiry"
 msgstr "Passwortablauf"
 

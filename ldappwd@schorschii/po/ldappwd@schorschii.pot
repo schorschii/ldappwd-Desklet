@@ -17,6 +17,12 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Language: \n"
 
+msgid "LDAP Password Expiry Tool"
+msgstr ""
+
+msgid "See when your domain password expires and change it."
+msgstr ""
+
 msgid "Password Expiry"
 msgstr ""
 
