@@ -49,13 +49,18 @@ MyDesklet.prototype = {
 
 		// initialize settings
 		this.settings = new Settings.DeskletSettings(this, this.metadata["uuid"], desklet_id);
-		this.settings.bindProperty(Settings.BindingDirection.IN, "hide-decorations", "hide_decorations", this.on_setting_changed);
-		this.settings.bindProperty(Settings.BindingDirection.IN, "server-address", "serverAddress", this.on_setting_changed);
-		this.settings.bindProperty(Settings.BindingDirection.IN, "server-username", "serverUsername", this.on_setting_changed);
-		this.settings.bindProperty(Settings.BindingDirection.IN, "server-domain", "serverDomain", this.on_setting_changed);
+		this.settings.bindProperty(Settings.BindingDirection.BIDIRECTIONAL, "server-address", "serverAddress", this.on_setting_changed);
+		this.settings.bindProperty(Settings.BindingDirection.BIDIRECTIONAL, "server-username", "serverUsername", this.on_setting_changed);
+		this.settings.bindProperty(Settings.BindingDirection.BIDIRECTIONAL, "server-domain", "serverDomain", this.on_setting_changed);
 		this.settings.bindProperty(Settings.BindingDirection.IN, "show-notifications", "showNotifications", this.on_setting_changed);
 		this.settings.bindProperty(Settings.BindingDirection.IN, "show-buttons", "showButtons", this.on_setting_changed);
+		this.settings.bindProperty(Settings.BindingDirection.IN, "hide-decorations", "hide_decorations", this.on_setting_changed);
 		this.settings.bindProperty(Settings.BindingDirection.BIDIRECTIONAL, "last-pwdExpiry", "lastPwdExpiry", this.on_setting_changed);
+
+		// try to get useful values if settings are empty
+		if(this.serverAddress == "" && this.serverUsername == "" && this.serverDomain == "") {
+			this.tryGetSettingsFromSystem();
+		}
 
 		// initialize desklet gui
 		this.setupUI();
@@ -76,6 +81,61 @@ MyDesklet.prototype = {
 
 		// start update cycle
 		this.refreshDesklet(true);
+	},
+
+	tryGetSettingsFromSystem: function() {
+		try {
+			// user name
+			let subprocess = new Gio.Subprocess({
+				argv: ["/usr/bin/whoami"],
+				flags: Gio.SubprocessFlags.STDOUT_PIPE,
+			});
+			subprocess.init(null);
+			subprocess.wait_async(null, (sourceObject, res) => {
+				let [, out] = sourceObject.communicate_utf8(null, null);
+				this.serverUsername = out.trim();
+			});
+
+			// domain name
+			let fileDomain = Gio.file_new_for_path("/etc/resolv.conf");
+			fileDomain.load_contents_async(null, (file, response) => {
+				try {
+					let [success, contents, tag] = file.load_contents_finish(response);
+					if(success) {
+						let lines = contents.toString().split("\n");
+						for(var i = 0; i < lines.length; i++) {
+							if(lines[i].trim().startsWith("search ")) {
+								this.serverDomain = lines[i].split(" ")[1].trim()
+							}
+						}
+					}
+					GLib.free(contents);
+				} catch(err) {
+					this.currentError = 1;
+				}
+				this.refreshDesklet();
+			});
+
+			// ldap server (domain controller)
+			let fileSmbConf = Gio.file_new_for_path("/etc/samba/smb.conf");
+			fileSmbConf.load_contents_async(null, (file, response) => {
+				try {
+					let [success, contents, tag] = file.load_contents_finish(response);
+					if(success) {
+						let lines = contents.toString().split("\n");
+						for(var i = 0; i < lines.length; i++) {
+							if(lines[i].trim().startsWith("password server = ")) {
+								this.serverAddress = lines[i].split(" ")[3].trim().split(",")[0].trim();
+							}
+						}
+					}
+					GLib.free(contents);
+				} catch(err) {
+					this.currentError = 1;
+				}
+				this.refreshDesklet();
+			});
+		} catch(ex) {}
 	},
 
 	populateContextMenu: function() {
