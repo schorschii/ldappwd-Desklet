@@ -7,7 +7,12 @@ This desklet is currenty in BETA phase and therefore not yet in the official cin
 
 ![Screenshot](https://raw.githubusercontent.com/schorschii/ldappwd-desklet/master/ldappwd%40schorschii/img/screenshot.png)
 
-## Manual Installation
+## 1. Installation
+### Debian Package Installation (Debian/Ubuntu/Mint)
+1. Download and install the `.deb` package from the [latest release](https://github.com/schorschii/ldappwd-desklet/releases) on Github.
+2. Right click on your cinnamon desktop and add the desklet to your desktop. Continue with "**2. Desklet Setup**".
+
+### Manual Installation
 1. Copy `ldappwd@schorschii` dir into `~/.local/share/cinnamon/desklets`
 2. Install the required packages
 ```
@@ -20,8 +25,8 @@ cd ~/.local/share/cinnamon/desklets/ldappwd@schorschii
 cinnamon-json-makepot --install
 ```
 
-## Desklet Setup
-1. Open the desklet manager and add the desklet to your desktop. Right click on it and open settings.  
+## 2. Desklet Setup
+1. Open the desklet manager and add the desklet to your desktop. Right click on it and open the desklet settings. It tries to automatically find out the correct values. Check and correct them if necessary.  
 **Example Values**  
 LDAP Server Address: `192.168.56.101`  
 Username: `johndoe`  
