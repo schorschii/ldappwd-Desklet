@@ -40,6 +40,12 @@
         "tooltip": "Show desktop notification when password expires soon.",
         "default": true
     },
+    "show-buttons": {
+        "type" : "checkbox",
+        "description": "Show buttons on desklet",
+        "tooltip": "If disabled, password refresh and change functions are available in the context menu.",
+        "default": true
+    },
     "hide-decorations": {
         "type": "checkbox",
         "description": "Hide decorations",

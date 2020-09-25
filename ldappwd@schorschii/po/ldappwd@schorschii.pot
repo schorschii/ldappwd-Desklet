@@ -113,5 +113,11 @@ msgstr ""
 msgid "Show desktop notification when password expires soon."
 msgstr ""
 
+msgid "Show buttons on desklet"
+msgstr ""
+
+msgid "If disabled, password refresh and change functions are available in the context menu."
+msgstr ""
+
 msgid "Hide decorations"
 msgstr ""

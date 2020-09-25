@@ -7,6 +7,7 @@ const Settings = imports.ui.settings;
 const Main = imports.ui.main;
 const Clutter = imports.gi.Clutter;
 const Gio = imports.gi.Gio;
+const PopupMenu = imports.ui.popupMenu;
 const Tooltips = imports.ui.tooltips;
 const Gettext = imports.gettext;
 
@@ -53,6 +54,7 @@ MyDesklet.prototype = {
 		this.settings.bindProperty(Settings.BindingDirection.IN, "server-username", "serverUsername", this.on_setting_changed);
 		this.settings.bindProperty(Settings.BindingDirection.IN, "server-domain", "serverDomain", this.on_setting_changed);
 		this.settings.bindProperty(Settings.BindingDirection.IN, "show-notifications", "showNotifications", this.on_setting_changed);
+		this.settings.bindProperty(Settings.BindingDirection.IN, "show-buttons", "showButtons", this.on_setting_changed);
 		this.settings.bindProperty(Settings.BindingDirection.BIDIRECTIONAL, "last-pwdExpiry", "lastPwdExpiry", this.on_setting_changed);
 
 		// initialize desklet gui
@@ -69,8 +71,23 @@ MyDesklet.prototype = {
 		// set decoration settings
 		this.refreshDecoration();
 
+		// init context menu
+		this.populateContextMenu();
+
 		// start update cycle
 		this.refreshDesklet(true);
+	},
+
+	populateContextMenu: function() {
+		this.refreshMenuItem = new PopupMenu.PopupMenuItem(_("Refresh Expiry Date"));
+		this._menu.addMenuItem(this.refreshMenuItem);
+		this.refreshMenuItem.setShowDot(this.angleMode == 0);
+		this.refreshMenuItem.connect("activate", Lang.bind(this, Lang.bind(this, this.refreshPasswordExpiry)));
+
+		this.setMenuItem = new PopupMenu.PopupMenuItem(_("Set New Password"));
+		this._menu.addMenuItem(this.setMenuItem);
+		this.setMenuItem.setShowDot(this.angleMode == 0);
+		this.setMenuItem.connect("activate", Lang.bind(this, Lang.bind(this, this.setPassword)));
 	},
 
 	update: function(password) {
@@ -187,7 +204,9 @@ MyDesklet.prototype = {
 		this.setContent(this.container);
 		this.container.add_actor(groupIcon);
 		this.container.add_actor(labelText);
-		this.container.add_actor(buttonTableActor);
+		if(this.showButtons) {
+			this.container.add_actor(buttonTableActor);
+		}
 
 		// refresh again
 		if(typeof this.timeout !== 'undefined') {
@@ -197,6 +216,9 @@ MyDesklet.prototype = {
 	},
 
 	refreshPasswordExpiry: function() {
+		if(this.serverAddress == "" || this.serverUsername == "" || this.serverDomain == "") {
+			return;
+		}
 		let subprocess = new Gio.Subprocess({
 			argv: ["/usr/bin/zenity", "--password", "--title", _("LDAP Password")],
 			flags: Gio.SubprocessFlags.STDOUT_PIPE,
@@ -214,6 +236,9 @@ MyDesklet.prototype = {
 	},
 
 	setPassword: function() {
+		if(this.serverAddress == "" || this.serverUsername == "" || this.serverDomain == "") {
+			return;
+		}
 		let subprocess = new Gio.Subprocess({
 			argv: [
 				"/usr/bin/zenity", "--forms",

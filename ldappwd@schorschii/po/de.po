@@ -114,5 +114,11 @@ msgstr "Benachrichtigungen, wenn das Passwort bald abläuft"
 msgid "Show desktop notification when password expires soon."
 msgstr "Zeige Desktopbenachrichtigungen, wenn das Passwort bald abläuft."
 
+msgid "Show buttons on desklet"
+msgstr "Zeige Buttons auf dem Desklet"
+
+msgid "If disabled, password refresh and change functions are available in the context menu."
+msgstr "Wenn Sie die Option deaktivieren können Sie die Funktionen zum aktualisieren und ändern des Passwortes über das Kontextmenü erreichen."
+
 msgid "Hide decorations"
 msgstr "Dekorationen verstecken"
