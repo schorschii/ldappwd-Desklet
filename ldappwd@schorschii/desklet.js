@@ -116,7 +116,7 @@ MyDesklet.prototype = {
 				this.refreshDesklet();
 			});
 
-			// ldap server (domain controller)
+			// ldap server (domain controller) via Samba config
 			let fileSmbConf = Gio.file_new_for_path("/etc/samba/smb.conf");
 			fileSmbConf.load_contents_async(null, (file, response) => {
 				try {
@@ -125,7 +125,27 @@ MyDesklet.prototype = {
 						let lines = contents.toString().split("\n");
 						for(var i = 0; i < lines.length; i++) {
 							if(lines[i].trim().startsWith("password server = ")) {
-								this.serverAddress = lines[i].split(" ")[3].trim().split(",")[0].trim();
+								this.serverAddress = lines[i].trim().split(" ")[3].trim().split(",")[0].trim();
+							}
+						}
+					}
+					GLib.free(contents);
+				} catch(err) {
+					this.currentError = 1;
+				}
+				this.refreshDesklet();
+			});
+
+			// ldap server (domain controller) via krb config
+			let fileKrbConf = Gio.file_new_for_path("/etc/krb5.conf");
+			fileKrbConf.load_contents_async(null, (file, response) => {
+				try {
+					let [success, contents, tag] = file.load_contents_finish(response);
+					if(success) {
+						let lines = contents.toString().split("\n");
+						for(var i = 0; i < lines.length; i++) {
+							if(lines[i].trim().startsWith("kdc = ")) {
+								this.serverAddress = lines[i].trim().split(" ")[2].trim();
 							}
 						}
 					}
