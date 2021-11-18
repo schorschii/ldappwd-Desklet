@@ -126,7 +126,7 @@ MyDesklet.prototype = {
 						let lines = contents.toString().split("\n");
 						for(var i = 0; i < lines.length; i++) {
 							if(lines[i].trim().startsWith("password server = ")) {
-								this.serverAddress = lines[i].trim().split(" ")[3].trim().split(",")[0].trim();
+								this.serverAddress = "ldaps://"+lines[i].trim().split(" ")[3].trim().split(",")[0].trim();
 							}
 						}
 					}
@@ -146,7 +146,7 @@ MyDesklet.prototype = {
 						let lines = contents.toString().split("\n");
 						for(var i = 0; i < lines.length; i++) {
 							if(lines[i].trim().startsWith("kdc = ")) {
-								this.serverAddress = lines[i].trim().split(" ")[2].trim();
+								this.serverAddress = "ldaps://"+lines[i].trim().split(" ")[2].trim();
 							}
 						}
 					}
