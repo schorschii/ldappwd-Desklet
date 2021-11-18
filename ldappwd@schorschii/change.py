@@ -15,6 +15,9 @@ if(len(sys.argv) != 8):
     print("Expecting 7 Parameters: change.py <Server URL> <Bind User> <Search Base> <Bind Password> <Modify User's DN> <Old Password> <New Password>\n")
     exit(1)
 
+def eprint(*args, **kwargs):
+    print(*args, file=sys.stderr, **kwargs)
+
 def escapeParam(str):
     return str.replace("(","\\28").replace(")","\\29")
 
@@ -32,7 +35,7 @@ try:
 			receive_timeout=2
 		)
 except Exception as e:
-	#print('Unable to bind via Kerberos: '+str(e))
+	eprint('Unable to bind via Kerberos: '+str(e))
 	pass
 
 # bind using username and password
@@ -51,10 +54,10 @@ conn.search(sys.argv[4],
 	attributes=ldap3.ALL_ATTRIBUTES
 )
 if(len(conn.entries) == 0):
-    print("Error: User query produced no result")
+    eprint("Error: User query produced no result")
     exit(1)
 if(len(conn.entries) > 1):
-    print("Error: User query produced more than one result")
+    eprint("Error: User query produced more than one result")
     exit(1)
 userDn = conn.entries[0].distinguishedName.value
 #print(userDn)
