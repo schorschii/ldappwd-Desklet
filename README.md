@@ -14,7 +14,7 @@ This desklet is currenty in BETA phase and therefore not yet in the official cin
 
 ### Manual Installation
 1. Copy `ldappwd@schorschii` directory into `~/.local/share/cinnamon/desklets` or `/usr/share/cinnamon/desklets`
-2. Install the required packages
+2. Install the required packages  
    (important: please install the newest `ldap3` from `pip`; version 2.4.1 from the Ubuntu 20.04 repo is not working)
    ```
    apt install python3-pip python3-gssapi zenity
