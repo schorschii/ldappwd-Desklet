@@ -28,15 +28,15 @@ cinnamon-json-makepot --install
 ## 2. Desklet Setup
 1. Open the Cinnamon desklet manager and add the desklet to your desktop. Right click on it and open the desklet settings. It tries to automatically find out the correct values. Check and correct them if necessary.  
 
-**Example Values**  
-LDAP Server Address: `ldap://192.168.56.101` or `ldaps://dc1.example.com`  
-Username: `johndoe`  
-Domain: `example.com`  
-Disable Kerberos authentication if you are not using Kerberos. The desklet will then ask for password when clicking on the refresh button.  
+   **Example Values**  
+   LDAP Server Address: `ldap://192.168.56.101` or `ldaps://dc1.example.com`  
+   Username: `johndoe`  
+   Domain: `example.com`  
+   Disable Kerberos authentication if you are not using Kerberos. The desklet will then ask for password when clicking on the refresh button.  
 
-**Important**  
-- The server FQDN (full qualified domain name) is required as server address/URL if you want to use Kerberos authentication (the IP address will not work here).
-- SSL (`ldaps://`) (and therefore a valid server certificate) is required if you want to use the password change feature. A Windows Server will refuse password change over a non-secure `ldap://` connection.
+   **Important**  
+   - The server FQDN (full qualified domain name) is required as server address/URL if you want to use Kerberos authentication (the IP address will not work here).
+   - SSL (`ldaps://`) (and therefore a valid server certificate) is required if you want to use the password change feature. A Windows Server will refuse password change over a non-secure `ldap://` connection.
 
 2. Click the "Refresh" Button on the desklet and enter the password for the LDAP bind user to authenticate against the LDAP server.  
 If everything was entered correct, the desklet now displays when the password of the given user expires.
