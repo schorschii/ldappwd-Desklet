@@ -1,5 +1,5 @@
 # LDAP Password Expiry Desklet for the Cinnamon Desktop
-<img style="float:right;" src="ldappwd@schorschii/img/screenshot.png">
+<img style="float:right;" align="right" src="ldappwd@schorschii/img/screenshot.png">
 
 This desklet shows when your LDAP domain password expires. Additionally, you can change it directly with a click on the desklet.
 
