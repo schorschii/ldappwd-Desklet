@@ -16,7 +16,7 @@ This desklet is currenty in BETA phase and therefore not yet in the official cin
 1. Copy `ldappwd@schorschii` dir into `~/.local/share/cinnamon/desklets`
 2. Install the required packages
 ```
-apt install python3-pip zenity
+apt install python3-pip python3-gssapi zenity
 pip3 install ldap3
 ```
 3. (Optional) Install translation files

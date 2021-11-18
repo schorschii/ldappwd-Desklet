@@ -78,7 +78,7 @@ msgstr "Neues Passwort erfolgreich gesetzt."
 msgid "New passwords not matching."
 msgstr "Neue Passwörter stimmen nicht überein."
 
-msgid "Please check if old password is correct, new password conforms to password policy, minimum password age is not violated, and if your account is locked."
+msgid "Please check if old password is correct, new password conforms to password policy, minimum password age is not violated, and that your account is not locked."
 msgstr "Bitte prüfen Sie ob Ihr altes Passwort korrekt ist, das neue Passwort mit der Kennwortrichtlinie konform ist, das minimale Kennwortalter nicht unterschritten wurde und ob Ihr Account gesperrt ist."
 
 msgid "Settings for ldappwd@schorschii"
@@ -96,8 +96,11 @@ msgstr "Benutzername"
 msgid "Domain"
 msgstr "Domäne"
 
-msgid "IP addresse or DNS name"
-msgstr "IP-Adresse oder DNS-Name"
+msgid "Enable Kerberos authentication"
+msgstr "Kerberos-Authentifizierung verwenden"
+
+msgid "Examples:\nldap://10.1.1.1\nldaps://dc1.example.com\n\nFQDN is required for Kerberos authentication. SSL is required for the password change feature."
+msgstr "Beispiele:\nldap://10.1.1.1\nldaps://dc1.example.com\n\nDer FQDN ist erforderlich für Kerberos-Authentifizierung. SSL ist erforderlich für das Passwort-Ändern-Feature."
 
 msgid "User name to authenticate on the LDAP server (without domain)"
 msgstr "Benutzername zur Authentifizieurng am LDAP-Server (ohne Domäne)"

@@ -77,7 +77,7 @@ msgstr ""
 msgid "New passwords not matching."
 msgstr ""
 
-msgid "Please check if old password is correct, new password conforms to password policy, minimum password age is not violated, and if your account is locked."
+msgid "Please check if old password is correct, new password conforms to password policy, minimum password age is not violated, and that your account is not locked."
 msgstr ""
 
 msgid "Settings for ldappwd@schorschii"
@@ -95,13 +95,16 @@ msgstr ""
 msgid "Domain"
 msgstr ""
 
-msgid "IP addresse or DNS name"
+msgid "Examples:\nldap://10.1.1.1\nldaps://dc1.example.com\n\nFQDN is required for Kerberos authentication. SSL is required for the password change feature."
 msgstr ""
 
 msgid "User name to authenticate on the LDAP server (without domain)"
 msgstr ""
 
 msgid "Domain name (e.g. example.com)"
+msgstr ""
+
+msgid "Enable Kerberos authentication"
 msgstr ""
 
 msgid "Visual"

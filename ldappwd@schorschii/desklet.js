@@ -52,6 +52,7 @@ MyDesklet.prototype = {
 		this.settings.bindProperty(Settings.BindingDirection.BIDIRECTIONAL, "server-address", "serverAddress", this.on_setting_changed);
 		this.settings.bindProperty(Settings.BindingDirection.BIDIRECTIONAL, "server-username", "serverUsername", this.on_setting_changed);
 		this.settings.bindProperty(Settings.BindingDirection.BIDIRECTIONAL, "server-domain", "serverDomain", this.on_setting_changed);
+		this.settings.bindProperty(Settings.BindingDirection.IN, "kerberos-authentication", "kerberosAuthentication", this.on_setting_changed);
 		this.settings.bindProperty(Settings.BindingDirection.IN, "show-notifications", "showNotifications", this.on_setting_changed);
 		this.settings.bindProperty(Settings.BindingDirection.IN, "show-buttons", "showButtons", this.on_setting_changed);
 		this.settings.bindProperty(Settings.BindingDirection.IN, "hide-decorations", "hide_decorations", this.on_setting_changed);
@@ -299,13 +300,17 @@ MyDesklet.prototype = {
 		if(this.serverAddress == "" || this.serverUsername == "" || this.serverDomain == "") {
 			return;
 		}
-		let subprocess = new Gio.Subprocess({
-			argv: ["/usr/bin/zenity", "--password", "--title", _("LDAP Password")],
-			flags: Gio.SubprocessFlags.STDOUT_PIPE,
-		});
-		subprocess.init(null);
-		subprocess.desklet = this;
-		subprocess.wait_async(null, this.askPasswordCallback);
+		if(this.kerberosAuthentication) {
+			this.update("");
+		} else {
+			let subprocess = new Gio.Subprocess({
+				argv: ["/usr/bin/zenity", "--password", "--title", _("LDAP Password")],
+				flags: Gio.SubprocessFlags.STDOUT_PIPE,
+			});
+			subprocess.init(null);
+			subprocess.desklet = this;
+			subprocess.wait_async(null, this.askPasswordCallback);
+		}
 	},
 
 	askPasswordCallback: function(sourceObject, res) {
@@ -343,36 +348,48 @@ MyDesklet.prototype = {
 			let newPassword = splitter[1].trim();
 			let confirmPassword = splitter[2].trim();
 			if(newPassword == confirmPassword) {
-				// update password
-				let subprocess = new Gio.Subprocess({
-					argv: [
-						"/usr/bin/python3", DESKLET_ROOT+"/change.py",
-						sourceObject.desklet.serverAddress,
-						sourceObject.desklet.serverUsername+"@"+sourceObject.desklet.serverDomain,
-						oldPassword,
-						buildBasePathByDomain(sourceObject.desklet.serverDomain),
-						sourceObject.desklet.serverUsername,
-						oldPassword,
-						newPassword
-					],
-					flags: Gio.SubprocessFlags.STDOUT_PIPE | Gio.SubprocessFlags.STDERR_PIPE,
-				});
-				subprocess.init(null);
-				let [, out, err] = subprocess.communicate_utf8(null, null); // get full output from stdout
-				if(out.includes("'description': 'success'")) {
-					sourceObject.desklet.showMessageBox("info", _("LDAP Password Changed"), _("New password set successfully."));
-					// update expiry date
-					sourceObject.desklet.update(newPassword);
+				if(sourceObject.desklet.kerberosAuthentication) {
+					sourceObject.desklet.updatePassword("", oldPassword, newPassword);
 				} else {
-					sourceObject.desklet.showMessageBox("error", _("LDAP Password Change Error"),
-						_("Please check if old password is correct, new password conforms to password policy, minimum password age is not violated, and if your account is locked.")
-						+ "\n" + "Error Details: " + sourceObject.desklet.escapeString(out.toString())
-						+ "\n" + sourceObject.desklet.escapeString(err.toString())
-					);
+					sourceObject.desklet.updatePassword(oldPassword, oldPassword, newPassword);
 				}
+
 			} else {
 				sourceObject.desklet.showMessageBox("warning", _("New Password"), _("New passwords not matching."));
 			}
+		}
+	},
+
+	updatePassword: function(bindPassword, oldPassword, newPassword) {
+		let subprocess = new Gio.Subprocess({
+			argv: [
+				"/usr/bin/python3", DESKLET_ROOT+"/change.py",
+				this.serverAddress,
+				this.serverUsername+"@"+this.serverDomain,
+				bindPassword,
+				buildBasePathByDomain(this.serverDomain),
+				this.serverUsername,
+				oldPassword,
+				newPassword
+			],
+			flags: Gio.SubprocessFlags.STDOUT_PIPE | Gio.SubprocessFlags.STDERR_PIPE,
+		});
+		subprocess.init(null);
+		let [, out, err] = subprocess.communicate_utf8(null, null); // get full output from stdout
+		if(out.includes("'description': 'success'")) {
+			this.showMessageBox("info", _("LDAP Password Changed"), _("New password set successfully."));
+			// update expiry date
+			if(this.kerberosAuthentication) {
+				this.update("");
+			} else {
+				this.update(newPassword);
+			}
+		} else {
+			this.showMessageBox("error", _("LDAP Password Change Error"),
+				_("Please check if old password is correct, new password conforms to password policy, minimum password age is not violated, and that your account is not locked.")
+				+ "\n\n" + "Error Details: " + this.escapeString(out.toString())
+				+ "\n" + this.escapeString(err.toString())
+			);
 		}
 	},
 

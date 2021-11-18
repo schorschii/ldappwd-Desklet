@@ -13,7 +13,7 @@
         "default": "",
         "description": "LDAP Server Address",
         "indent": true,
-        "tooltip": "IP addresse or DNS name"
+        "tooltip": "Examples:\nldap://10.1.1.1\nldaps://dc1.example.com\n\nFQDN is required for Kerberos authentication. SSL is required for the password change feature."
     },
     "server-username": {
         "type": "entry",
@@ -28,6 +28,11 @@
         "description": "Domain",
         "indent": true,
         "tooltip": "Domain name (e.g. example.com)"
+    },
+    "kerberos-authentication": {
+        "type": "checkbox",
+        "default": true,
+        "description": "Enable Kerberos authentication"
     },
 
     "head2": {
