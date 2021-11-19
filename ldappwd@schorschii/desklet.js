@@ -53,6 +53,7 @@ MyDesklet.prototype = {
 		this.settings.bindProperty(Settings.BindingDirection.BIDIRECTIONAL, "server-username", "serverUsername", this.on_setting_changed);
 		this.settings.bindProperty(Settings.BindingDirection.BIDIRECTIONAL, "server-domain", "serverDomain", this.on_setting_changed);
 		this.settings.bindProperty(Settings.BindingDirection.IN, "kerberos-authentication", "kerberosAuthentication", this.on_setting_changed);
+		this.settings.bindProperty(Settings.BindingDirection.IN, "fallback-password-authentication", "fallbackPasswordAuthentication", this.on_setting_changed);
 		this.settings.bindProperty(Settings.BindingDirection.IN, "show-notifications", "showNotifications", this.on_setting_changed);
 		this.settings.bindProperty(Settings.BindingDirection.IN, "show-buttons", "showButtons", this.on_setting_changed);
 		this.settings.bindProperty(Settings.BindingDirection.IN, "hide-decorations", "hide_decorations", this.on_setting_changed);
@@ -163,7 +164,7 @@ MyDesklet.prototype = {
 		this.refreshMenuItem = new PopupMenu.PopupMenuItem(_("Refresh Expiry Date"));
 		this._menu.addMenuItem(this.refreshMenuItem);
 		this.refreshMenuItem.setShowDot(this.angleMode == 0);
-		this.refreshMenuItem.connect("activate", Lang.bind(this, Lang.bind(this, this.refreshPasswordExpiry)));
+		this.refreshMenuItem.connect("activate", Lang.bind(this, Lang.bind(this, this.onClickRefreshPasswordExpiry)));
 
 		this.setMenuItem = new PopupMenu.PopupMenuItem(_("Set New Password"));
 		this._menu.addMenuItem(this.setMenuItem);
@@ -196,7 +197,14 @@ MyDesklet.prototype = {
 			}
 		};
 		if(this.pwdExpiry == 0) {
-			this.showMessageBox("error", _("Cannot query pwdExpiry!"), this.escapeString(err2.toString()));
+			if(password == "" && this.fallbackPasswordAuthentication) {
+				// kerberos auth failed - try with password
+				Main.notifyError(_("Cannot query pwdExpiry!"), err2.toString());
+				this.refreshPasswordExpiry(true);
+			} else {
+				// password auth failed - show error message
+				this.showMessageBox("error", _("Cannot query pwdExpiry!"), this.escapeString(err2.toString()));
+			}
 		}
 
 		// save result in settings
@@ -260,7 +268,7 @@ MyDesklet.prototype = {
 		});
 		buttonRefresh.add_actor(this.image);
 		new Tooltips.Tooltip(buttonRefresh, _("Refresh Expiry Date"));
-		buttonRefresh.connect("clicked", Lang.bind(this, this.refreshPasswordExpiry));
+		buttonRefresh.connect("clicked", Lang.bind(this, this.onClickRefreshPasswordExpiry));
 
 		// set password button
 		let buttonSetPassword = new St.Button({ style_class: "button" });
@@ -296,11 +304,17 @@ MyDesklet.prototype = {
 		this.timeout = Mainloop.timeout_add_seconds(600, Lang.bind(this, this.refreshDesklet));
 	},
 
-	refreshPasswordExpiry: function() {
+	onClickRefreshPasswordExpiry: function() {
+		// proxy function for executing refreshPasswordExpiry() via clicking a button
+		// - some other parameters are passed then, which should not be passed to refreshPasswordExpiry()
+		this.refreshPasswordExpiry();
+	},
+
+	refreshPasswordExpiry: function(forceSimpleBind = false) {
 		if(this.serverAddress == "" || this.serverUsername == "" || this.serverDomain == "") {
 			return;
 		}
-		if(this.kerberosAuthentication) {
+		if(this.kerberosAuthentication && !forceSimpleBind) {
 			this.update("");
 		} else {
 			let subprocess = new Gio.Subprocess({
@@ -385,11 +399,17 @@ MyDesklet.prototype = {
 				this.update(newPassword);
 			}
 		} else {
-			this.showMessageBox("error", _("LDAP Password Change Error"),
-				_("Please check if old password is correct, new password conforms to password policy, minimum password age is not violated, and that your account is not locked.")
-				+ "\n\n" + "Error Details: " + this.escapeString(out.toString())
-				+ "\n" + this.escapeString(err.toString())
-			);
+			if(bindPassword == "" && this.fallbackPasswordAuthentication) {
+				// kerberos auth failed - try with password auth
+				Main.notifyError(_("LDAP Password Change Error"), err.toString());
+				this.updatePassword(oldPassword, oldPassword, newPassword);
+			} else {
+				this.showMessageBox("error", _("LDAP Password Change Error"),
+					_("Please check if old password is correct, new password conforms to password policy, minimum password age is not violated, and that your account is not locked.")
+					+ "\n\n" + "Error Details: " + this.escapeString(out.toString())
+					+ "\n" + this.escapeString(err.toString())
+				);
+			}
 		}
 	},
 

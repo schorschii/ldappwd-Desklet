@@ -107,6 +107,9 @@ msgstr ""
 msgid "Enable Kerberos authentication"
 msgstr ""
 
+msgid "Enable password authentication as fallback"
+msgstr ""
+
 msgid "Visual"
 msgstr ""
 

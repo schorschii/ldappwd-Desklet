@@ -39,16 +39,20 @@ try:
 		)
 except Exception as e:
 	eprint('Unable to bind via Kerberos: '+str(e))
-	pass
+	sys.exit(1)
 
 # bind using username and password
-if(conn == None):
-	conn = ldap3.Connection(server,
-		user=sys.argv[2],
-		password=sys.argv[3],
-		auto_bind=True,
-		receive_timeout=2
-	)
+try:
+	if(conn == None):
+		conn = ldap3.Connection(server,
+			user=sys.argv[2],
+			password=sys.argv[3],
+			auto_bind=True,
+			receive_timeout=2
+		)
+except Exception as e:
+	eprint('Unable to bind using password: '+str(e))
+	sys.exit(1)
 
 # query user pwdLastSet
 conn.search(sys.argv[4],

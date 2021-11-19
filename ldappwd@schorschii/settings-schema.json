@@ -34,6 +34,12 @@
         "default": true,
         "description": "Enable Kerberos authentication"
     },
+    "fallback-password-authentication": {
+        "type": "checkbox",
+        "default": false,
+        "description": "Enable password authentication as fallback",
+        "dependency": "kerberos-authentication"
+    },
 
     "head2": {
         "type": "header",

@@ -99,6 +99,9 @@ msgstr "Domäne"
 msgid "Enable Kerberos authentication"
 msgstr "Kerberos-Authentifizierung verwenden"
 
+msgid "Enable password authentication as fallback"
+msgstr "Passwort-Authentifizierung als Fallback verwenden"
+
 msgid "Examples:\nldap://10.1.1.1\nldaps://dc1.example.com\n\nFQDN is required for Kerberos authentication. SSL is required for the password change feature."
 msgstr "Beispiele:\nldap://10.1.1.1\nldaps://dc1.example.com\n\nDer FQDN ist erforderlich für Kerberos-Authentifizierung. SSL ist erforderlich für das Passwort-Ändern-Feature."
 
