@@ -238,7 +238,7 @@ MyDesklet.prototype = {
 				} else {
 					this.symbol = "red";
 					if(showNotifications) {
-						Main.notifyError(this.serverUsername, _("Your password expires in %s days").replace(/%s/, pwdExpiryInDays));
+						Main.notifyError(this.serverUsername, _("Your password expires in % days").replace("%", pwdExpiryInDays));
 					}
 				}
 			} else {
@@ -318,7 +318,7 @@ MyDesklet.prototype = {
 			this.update("");
 		} else {
 			let subprocess = new Gio.Subprocess({
-				argv: ["/usr/bin/zenity", "--password", "--title", _("LDAP Password")],
+				argv: ["/usr/bin/zenity", "--password", "--title", _("LDAP Password for »%«").replace("%", this.serverUsername)],
 				flags: Gio.SubprocessFlags.STDOUT_PIPE,
 			});
 			subprocess.init(null);
@@ -341,7 +341,7 @@ MyDesklet.prototype = {
 		let subprocess = new Gio.Subprocess({
 			argv: [
 				"/usr/bin/zenity", "--forms",
-				"--title", _("New Password"),
+				"--title", _("New Password for »%«").replace("%", this.serverUsername),
 				"--text", _("Change Password"),
 				"--add-password", _("Old Password"),
 				"--add-password", _("New Password"),

@@ -40,7 +40,7 @@ msgid "Cannot query pwdExpiry!"
 msgstr "Kann pwdExpiry nicht abfragen!"
 
 msgid "Your password expires in % days"
-msgstr "Ihr Passwort läuft in %s Tagen ab"
+msgstr "Ihr Passwort läuft in % Tagen ab"
 
 msgid "Password does\nnot expire"
 msgstr "Passwort läuft\nnicht ab"
@@ -51,8 +51,11 @@ msgstr "Ablaufdatum aktualisieren"
 msgid "Set New Password"
 msgstr "Passwort ändern"
 
-msgid "LDAP Password"
-msgstr "LDAP Passwort"
+msgid "LDAP Password for »%«"
+msgstr "LDAP-Passwort für »%«"
+
+msgid "New Password for »%«"
+msgstr "Neues Passwort für »%«"
 
 msgid "New Password"
 msgstr "Neues Passwort"

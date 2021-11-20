@@ -50,7 +50,10 @@ msgstr ""
 msgid "Set New Password"
 msgstr ""
 
-msgid "LDAP Password"
+msgid "LDAP Password for »%«"
+msgstr ""
+
+msgid "New Password for »%«"
 msgstr ""
 
 msgid "New Password"
