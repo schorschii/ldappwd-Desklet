@@ -163,12 +163,10 @@ MyDesklet.prototype = {
 	populateContextMenu: function() {
 		this.refreshMenuItem = new PopupMenu.PopupMenuItem(_("Refresh Expiry Date"));
 		this._menu.addMenuItem(this.refreshMenuItem);
-		this.refreshMenuItem.setShowDot(this.angleMode == 0);
 		this.refreshMenuItem.connect("activate", Lang.bind(this, Lang.bind(this, this.onClickRefreshPasswordExpiry)));
 
 		this.setMenuItem = new PopupMenu.PopupMenuItem(_("Set New Password"));
 		this._menu.addMenuItem(this.setMenuItem);
-		this.setMenuItem.setShowDot(this.angleMode == 0);
 		this.setMenuItem.connect("activate", Lang.bind(this, Lang.bind(this, this.setPassword)));
 	},
 
@@ -281,12 +279,12 @@ MyDesklet.prototype = {
 		buttonSetPassword.connect("clicked", Lang.bind(this, this.setPassword));
 
 		// create table layout
-		let buttonTable = new Clutter.TableLayout();
+		let buttonTable = new Clutter.GridLayout();
 		let buttonTableActor = new Clutter.Actor();
 		buttonTableActor.set_layout_manager(buttonTable);
 		buttonTable.set_column_spacing(4);
-		buttonTable.pack(buttonRefresh, 0, 0);
-		buttonTable.pack(buttonSetPassword, 1, 0);
+		buttonTable.attach(buttonRefresh, 0, 0, 1, 1);
+		buttonTable.attach(buttonSetPassword, 1, 0, 1, 1);
 
 		// set root element
 		this.container = new St.BoxLayout({ style_class: "container", vertical: true });
